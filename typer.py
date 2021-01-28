@@ -16,13 +16,14 @@ def main(stdscr):
     wpm_pad = 4
 
     #text setup
+    #TODO: leggere testo da file
     tmp = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
     text = []
     for t in tmp.split():
         text.append({'txt': t, 'color': 0})
     
     #first print
-    #TODO: evitare che le parole vengano interrotte a metà
+    #TODO: evitare che le parole vengano interrotte a meta
     for t in text:
         text_area.addstr(t['txt']+' ', t['color'])
     text_area.move(0,0)
