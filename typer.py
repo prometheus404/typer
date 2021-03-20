@@ -1,9 +1,37 @@
 import time
 import curses
+import sys
+import getopt
+import random
 
-def main(stdscr):
+def main(stdscr, argv):
+
+    opts, args = getopt.getopt(argv, "hf:w:", ["file=", "words="])
+    
     stdscr.clear()
     stdscr.refresh()
+   
+    if len(opts) == 0:
+        stdscr.addstr("typer.py -f <file>")
+        stdscr.getkey()
+        sys.exit(2)
+
+    for opt, arg in opts:
+        if opt == "-h":
+            stdscr.addstr("typer.py -f <file> -w <words>")
+            stdscr.getkey()
+            sys.exit()
+        elif opt in ("-f", "--file"):
+            dic_file = arg
+        elif opt in ("-w", "--words"):
+            try:
+                n_words = int(arg) 
+            except ValueError:
+                stdscr.addstr("argument -w should be an integer")
+                stdscr.getkey()
+                sys.exit(2)
+
+
     
     #windows
     top = curses.newwin(1, curses.COLS, 0, 0)
@@ -16,12 +44,8 @@ def main(stdscr):
     wpm_pad = 4
 
     #text setup
-    #TODO: leggere testo da file
-    tmp = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
-    text = []
-    for t in tmp.split():
-        text.append({'txt': t, 'color': 0})
-    
+    text = text_setup(dic_file, n_words)
+
     #first print
     #TODO: evitare che le parole vengano interrotte a meta
     for t in text:
@@ -69,11 +93,27 @@ def main(stdscr):
             text_area.addstr(t['txt']+' ', t['color'])
         top.addstr(0, wpm_pad, str(wpm)+'     sec: '+str(seconds)+'    ', curses.A_REVERSE)
         text_area.move(int(cursor_pad/length), cursor_pad%length)
-        #TODO il colore deve essere diverso se sto sbagliando
-        text_area.addstr(acc, curses.color_pair(3))
+        
+        if text[word]['txt'][0:len(acc)] == acc:
+            text_area.addstr(acc, curses.color_pair(3))
+        else:
+            text_area.addstr(acc, curses.color_pair(1))
+            
         text_area.move(int((cursor_pad+len(acc))/length), (cursor_pad+len(acc))%length)
         
         top.refresh()
         text_area.refresh()
 
-curses.wrapper(main)
+def text_setup(dictionary, num):
+    with open(dictionary) as dic:
+        r = ""
+        for w in dic.readlines():
+            r = r + w
+        words = r.split()
+        text = []
+        for n in range(num):
+            text.append({'txt': words[random.randrange(len(words))], 'color': 0})
+        return text
+
+if __name__ == "__main__":
+    curses.wrapper(main, sys.argv[1:])
